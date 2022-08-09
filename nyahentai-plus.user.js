@@ -9,7 +9,7 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=nyahentai.red
 // @require      https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
 // @author       Suntra
-// @run-at       document-body
+// @run-at       document-end
 // @license      MIT
 // @grant        GM_addStyle
 // ==/UserScript==
