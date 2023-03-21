@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         喵绅士(nyahentai)
 // @namespace    https://github.com/dffxd-suntra/nyahentai-plus
-// @version      1.0
+// @version      2.0
 // @description  让新版喵绅士有长条预览功能,预计是不会有更新的了
 // @homepageURL  https://github.com/dffxd-suntra/nyahentai-plus
 // @supportURL   https://github.com/dffxd-suntra/nyahentai-plus
