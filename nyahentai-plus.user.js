@@ -1,35 +1,55 @@
 // ==UserScript==
 // @name         喵绅士(nyahentai)
 // @namespace    https://github.com/dffxd-suntra/nyahentai-plus
-// @version      2.0
+// @version      1.0
 // @description  让新版喵绅士有长条预览功能,预计是不会有更新的了
 // @homepageURL  https://github.com/dffxd-suntra/nyahentai-plus
 // @supportURL   https://github.com/dffxd-suntra/nyahentai-plus
 // @match        https://nyahentai.red/g/*
 // @match        https://nhentai.net/g/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=nyahentai.red
-// @require      https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
+// @icon         https://nyahentai.red/front/favicon.ico
+// @require      https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js
+// @require      https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js
 // @author       Suntra
 // @license      MIT
 // ==/UserScript==
 
 (function() {
-    var inited = false;
+    let loadingImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE7WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDIzLTA1LTMwVDIyOjMzOjE0KzA4OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIzLTA1LTMwVDIyOjMzOjE0KzA4OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMy0wNS0zMFQyMjozMzoxNCswODowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MTlmYWFhY2MtZGQ5Zi0yMDRlLTk5MGQtMWZiNzFiYjhhYThhIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE5ZmFhYWNjLWRkOWYtMjA0ZS05OTBkLTFmYjcxYmI4YWE4YSIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjE5ZmFhYWNjLWRkOWYtMjA0ZS05OTBkLTFmYjcxYmI4YWE4YSIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMSI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MTlmYWFhY2MtZGQ5Zi0yMDRlLTk5MGQtMWZiNzFiYjhhYThhIiBzdEV2dDp3aGVuPSIyMDIzLTA1LTMwVDIyOjMzOjE0KzA4OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoV2luZG93cykiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+ejvILQAAAApJREFUCJljKAcAAHkAeO/tISkAAAAASUVORK5CYII=";
+    let inited = false;
     function startView() {
         if(inited) return;
         inited = true;
-        var pages = new Number($("#tags").children(":contains('Pages')").find(".tag").text());
-        var tempUrl = $("#cover > a > img").attr("src").match(/https:\/\/cdn.nhentai.xxx\/g\/[0-9]+\//);
+        let pages = new Number($("#tags").children(":contains('Pages')").find(".tag").text());
+        let tempUrl = $("#cover > a > img").attr("src").split("/").slice(0, -1).join("/")+"/";
         console.log("pages: "+pages);
         console.log("tempUrl: "+tempUrl);
 
-        for(var i=1;i<=pages;i++) {
-            $("#nyap-read-page-img").append(`<img src="`+tempUrl+i+`.jpg" class="lazyload" style="width: 100%"/><br>`);
+        for(let i=1; i<=pages; i++) {
+            $("#nyap-read-page-img").append(
+                $("<span>")
+                    .text(`${i}/${pages}page`)
+                    .css({
+                        "color": "gray",
+                        "position": "absolute",
+                        "left": 0
+                    }),
+                $("<img>")
+                    .attr("src", loadingImg)
+                    .attr("data-src", `${tempUrl+i}.jpg`)
+                    .addClass("lazyload")
+                    .css({
+                        "width": "100%",
+                        "padding": 0,
+                        "margin": 0
+                    }),
+                $("<br>")
+            );
         }
     }
     // 页面样式
     $("body").prepend(`
-    <div style="position: fixed;top: 0;left: 0;right: 0;bottom: 0;z-index: 9999;display: none;background: rgba(0, 0, 0, 95%);overflow: auto;" id="nyap-read-page">
+    <div style="position: fixed;top: 0;left: 0;right: 0;bottom: 0;z-index: 114514;display: none;background: rgba(0, 0, 0, 95%);overflow: auto;" id="nyap-read-page">
         <div style="position: fixed;bottom: 10px;right: 10px;">
             <h1 id="showWidth">80%</h1>
             <div id="nyap-read-page-img-change-width">
@@ -44,8 +64,7 @@
             <button type="button" id="nyap-read-page-toTop" class="btn btn-primary">顶部</button>
         </div>
         <center>
-        <div id="nyap-read-page-img" style="width: 80%">
-        </div>
+            <div id="nyap-read-page-img" style="width: 80%"></div>
         </center>
     </div>
     `);
@@ -64,13 +83,15 @@
         $("#nyap-read-page").scrollTop(0);
     });
     // 切换宽度
-    var imgWidth = 80;
+    let imgWidth = 80;
     $("#nyap-read-page-img-change-width").click(function ({target}) {
         if($(target).attr("id")=="nyap-read-page-img-change-width") {
             return;
         }
-        imgWidth += Number($(target).text());
-        imgWidth = Math.max(1,imgWidth);
-        $("#nyap-read-page-img").css("width",imgWidth+"%");
+        imgWidth = Math.max(1, imgWidth+Number($(target).text()));
+        // 以屏幕中线为标准获取阅读进度,避免
+        let readProgress = ($("#nyap-read-page").scrollTop()+$(window).height()/2)/$("#nyap-read-page").prop("scrollHeight");
+        $("#nyap-read-page-img").css("width", imgWidth+"%");
+        $("#nyap-read-page").scrollTop(readProgress*$("#nyap-read-page").prop("scrollHeight"));
     });
 })();
