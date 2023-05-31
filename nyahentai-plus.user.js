@@ -1,32 +1,35 @@
 // ==UserScript==
 // @name         喵绅士(nyahentai)
 // @namespace    https://github.com/dffxd-suntra/nyahentai-plus
-// @version      1.0
-// @description  让新版喵绅士有长条预览功能,预计是不会有更新的了
+// @version      1.2
+// @description  让新版喵绅士有长条预览功能
 // @homepageURL  https://github.com/dffxd-suntra/nyahentai-plus
 // @supportURL   https://github.com/dffxd-suntra/nyahentai-plus
-// @match        https://nyahentai.red/g/*
-// @match        https://nhentai.xxx/g/*
+// @match        *://nyahentai.red/g/*
+// @match        *://nhentai.xxx/g/*
 // @icon         https://nyahentai.red/front/favicon.ico
 // @require      https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js
 // @require      https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js
 // @author       Suntra
+// @grant        GM_getValue
+// @grant        GM_setValue
 // @license      MIT
 // ==/UserScript==
 
-(function() {
+(function () {
     let loadingImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE7WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDIzLTA1LTMwVDIyOjMzOjE0KzA4OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIzLTA1LTMwVDIyOjMzOjE0KzA4OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMy0wNS0zMFQyMjozMzoxNCswODowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MTlmYWFhY2MtZGQ5Zi0yMDRlLTk5MGQtMWZiNzFiYjhhYThhIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE5ZmFhYWNjLWRkOWYtMjA0ZS05OTBkLTFmYjcxYmI4YWE4YSIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjE5ZmFhYWNjLWRkOWYtMjA0ZS05OTBkLTFmYjcxYmI4YWE4YSIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMSI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MTlmYWFhY2MtZGQ5Zi0yMDRlLTk5MGQtMWZiNzFiYjhhYThhIiBzdEV2dDp3aGVuPSIyMDIzLTA1LTMwVDIyOjMzOjE0KzA4OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoV2luZG93cykiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+ejvILQAAAApJREFUCJljKAcAAHkAeO/tISkAAAAASUVORK5CYII=";
     let inited = false;
-    let imgWidth = 80;
+    let imgWidth = GM_getValue("imgWidth", 60);
+    let scrolling = false;
     function startView() {
-        if(inited) return;
+        if (inited) return;
         inited = true;
         let pages = new Number($("#tags").children(":contains('Pages')").find(".tag").text());
-        let tempUrl = $("#cover > a > img").attr("src").split("/").slice(0, -1).join("/")+"/";
-        console.log("pages: "+pages);
-        console.log("tempUrl: "+tempUrl);
+        let tempUrl = $("#cover > a > img").attr("src").split("/").slice(0, -1).join("/") + "/";
+        console.log("pages: " + pages);
+        console.log("tempUrl: " + tempUrl);
 
-        for(let i=1; i<=pages; i++) {
+        for (let i = 1; i <= pages; i++) {
             $("#nyap-read-page-img").append(
                 $("<span>")
                     .text(`${i}/${pages}page`)
@@ -37,7 +40,7 @@
                     }),
                 $("<img>")
                     .attr("src", loadingImg)
-                    .attr("data-src", `${tempUrl+i}.jpg`)
+                    .attr("data-src", `${tempUrl + i}.jpg`)
                     .addClass("lazyload")
                     .css({
                         "width": "100%",
@@ -61,6 +64,8 @@
                 <button type="button" class="btn btn-primary">-5</button><br>
                 <button type="button" class="btn btn-primary">-1</button><br>
             </div>
+            <input type="text" id="nyap-read-page-scroll-speed" class="btn btn-secondary" title="几毫秒滚完一个屏幕" style="width: 5em;" value="3000" /><br>
+            <button type="button" id="nyap-read-page-scroll"  class="btn btn-primary">滚动</button><br>
             <button type="button" id="nyap-read-page-hide"  class="btn btn-primary">关闭</button><br>
             <button type="button" id="nyap-read-page-toTop" class="btn btn-primary">顶部</button>
         </div>
@@ -84,37 +89,51 @@
         $("#nyap-read-page").scrollTop(0);
     });
     // 切换宽度
-    $("#nyap-read-page-img-change-width").click(function ({target}) {
-        if($(target).attr("id")=="nyap-read-page-img-change-width") {
+    $("#nyap-read-page-img-change-width").click(function ({ target }) {
+        if ($(target).attr("id") == "nyap-read-page-img-change-width") {
             return;
         }
-        imgWidth = Math.max(1, imgWidth+Number($(target).text()));
+        imgWidth = Math.max(1, imgWidth + Number($(target).text()));
+        GM_setValue("imgWidth", imgWidth);
         // 以屏幕中线为标准获取阅读进度,避免
-        let readProgress = ($("#nyap-read-page").scrollTop()+$(window).height()/2)/$("#nyap-read-page").prop("scrollHeight");
-        $("#nyap-read-page-img").css("width", imgWidth+"%");
-        $("#showWidth").text(imgWidth+"%");
-        $("#nyap-read-page").scrollTop(readProgress*$("#nyap-read-page").prop("scrollHeight")-$(window).height()/2);
+        let readProgress = ($("#nyap-read-page").scrollTop() + $(window).height() / 2) / $("#nyap-read-page").prop("scrollHeight");
+        $("#nyap-read-page-img").css("width", imgWidth + "%");
+        $("#showWidth").text(imgWidth + "%");
+        $("#nyap-read-page").scrollTop(readProgress * $("#nyap-read-page").prop("scrollHeight") - $(window).height() / 2);
     });
-    done = false;
-ms = 60000;
-(function () {
-    let start, previousTimeStamp;
-    let pixelPreMs = $(window).height()/ms;
-    let sum = 0;
-    function step(time) {
-        if(start == undefined) {
-            start = time;
-            previousTimeStamp = time;
+    $("#nyap-read-page-scroll").click(function () {
+        if (scrolling) {
+            endScroll();
+            $("#nyap-read-page-scroll").text("开始滚动");
+        } else {
+            let ms = parseInt($("#nyap-read-page-scroll-speed").val());
+            if(!ms) {
+                return;
+            }
+            startScroll(ms);
+            $("#nyap-read-page-scroll").text("结束滚动");
         }
-        if(done) {
-            return;
+    });
+    function startScroll(ms) {
+        scrolling = true;
+        let previousTimeStamp;
+        let sum = 0;
+        function step(time) {
+            if (previousTimeStamp != undefined) {
+                console.log(time - previousTimeStamp);
+                sum += ($(window).height() / ms) * (time - previousTimeStamp);
+                console.log(sum);
+                $("#nyap-read-page").scrollTop($("#nyap-read-page").scrollTop() + sum);
+                sum %= 1;
+            }
+            if (scrolling) {
+                previousTimeStamp = time;
+                window.requestAnimationFrame(step);
+            }
         }
-        sum += pixelPreMs*(time-previousTimeStamp);
-        $("#nyap-read-page").scrollTop($("#nyap-read-page").scrollTop()+sum-sum%1);
-        sum = sum%1;
-        previousTimeStamp = time;
         window.requestAnimationFrame(step);
     }
-    window.requestAnimationFrame(step);
-})();
+    function endScroll() {
+        scrolling = false;
+    }
 })();
