@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         喵绅士(nyahentai)
 // @namespace    https://github.com/dffxd-suntra/nyahentai-plus
-// @version      1.5
-// @description  让新版喵绅士有长条预览功能
+// @version      2.0
+// @description  正式可用,让新版喵绅士有长条预览功能
 // @homepageURL  https://github.com/dffxd-suntra/nyahentai-plus
 // @supportURL   https://github.com/dffxd-suntra/nyahentai-plus
 // @match        *://nyahentai.red/*
@@ -29,13 +29,17 @@
         }
         return new window.DOMParser().parseFromString(response.data, "text/html");
     }
+    async function getPicByPage(url) {
+        let detailDocument = await loadHtml(url);
+        return $("#image-container > a > img", detailDocument).attr("src");
+    }
     async function startView(url) {
+        $("#nyap-read-page-img").html("");
         let detailDocument = await loadHtml(url);
         let pages = parseInt($("#tags", detailDocument).children(":contains('Pages')").find(".tag").text());
         let tempUrl = $("#cover > a > img", detailDocument).attr("src").split("/").slice(0, -1).join("/") + "/";
         console.log(`pages: ${pages}\ntempUrl: ${tempUrl}`);
 
-        $("#nyap-read-page-img").html("");
         for (let i = 1; i <= pages; i++) {
             $("#nyap-read-page-img").append(
                 $("<span>")
@@ -53,6 +57,11 @@
                         "width": "100%",
                         "padding": 0,
                         "margin": 0
+                    })
+                    .on("error", async function (event) {
+                        $(this).attr("src", loadingImg);
+                        $(this).attr("src", await getPicByPage(`${url}${i}/`));
+                        return false;
                     }),
                 $("<br>")
             );
@@ -112,7 +121,7 @@
         </center>
     </div>
     `);
-    if(/^\/g\/.+\/$/.test(location.pathname)) {
+    if(/^\/g\/.+\/?$/.test(location.pathname)) {
         $("#info > div").prepend($(`<button class="btn btn-primary" id="nyap-read-page-show">垂直阅读</button>`).data("page-link", location.href));
     }
     $(".gallery > .cover").each(function (index, node) {
@@ -124,13 +133,15 @@
     // 切换开,关
     $("*#nyap-read-page-show").click(function (event) {
         event.preventDefault();
-        startView($(this).data("page-link"));
+        $("#nyap-read-page").scrollTop(0);
         $("body").css("overflow", "hidden");
         $("#nyap-read-page").show();
+        startView($(this).data("page-link"));
     });
     $("#nyap-read-page-hide").click(function () {
         $("body").css("overflow", "");
         $("#nyap-read-page").hide();
+        endScroll();
     });
     $("#nyap-read-page-toTop").click(function () {
         $("#nyap-read-page").scrollTop(0);
