@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         喵绅士(nyahentai)
 // @namespace    https://github.com/dffxd-suntra/nyahentai-plus
-// @version      2.0
+// @version      2.1
 // @description  正式可用,让新版喵绅士有长条预览功能
 // @homepageURL  https://github.com/dffxd-suntra/nyahentai-plus
 // @supportURL   https://github.com/dffxd-suntra/nyahentai-plus
@@ -11,6 +11,7 @@
 // @require      https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js
 // @require      https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js
 // @require      https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js
+// @require      https://cdn.jsdelivr.net/npm/keyboardjs@2.7.0/dist/keyboard.min.js
 // @author       Suntra
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -94,13 +95,15 @@
             }
         }
         window.requestAnimationFrame(step);
+        $("#nyap-read-page-scroll").text("结束");
     }
     function endScroll() {
         scrolling = false;
+        $("#nyap-read-page-scroll").text("滚动");
     }
     // 页面样式
     $("body").prepend(`
-    <div style="position: fixed;top: 0;left: 0;right: 0;bottom: 0;z-index: 114514;display: none;background: rgba(0, 0, 0, 95%);overflow: auto;" id="nyap-read-page">
+    <div style="position: fixed;top: 0;left: 0;right: 0;bottom: 0;z-index: 114514;display: none;background: rgba(0, 0, 0, 95%);overflow: auto;-webkit-user-select: none;user-select: none;" id="nyap-read-page">
         <div style="position: fixed;bottom: 10px;right: 10px;">
             <h1 id="showWidth" style="text-shadow: 0px 0px 4px black;">${imgWidth}%</h1>
             <div id="nyap-read-page-img-change-width">
@@ -126,19 +129,21 @@
     }
     $(".gallery > .cover").each(function (index, node) {
         $(node).append(
-            $(`<a id="nyap-read-page-show" style="position: absolute;right: 0;bottom: 0;text-shadow: 0px 0px 4px black;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/></svg></a>`).data("page-link", $(node).attr("href"))
+            $(`<a id="nyap-read-page-show" style="position: absolute;right: 0;bottom: 0;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/></svg></a>`).data("page-link", $(node).attr("href"))
         );
     });
     $("#nyap-read-page-scroll-speed").val(GM_getValue("scrollSpeed", 8000));
     // 切换开,关
     $("*#nyap-read-page-show").click(function (event) {
         event.preventDefault();
+        keyboardJS.setContext("view");
         $("#nyap-read-page").scrollTop(0);
         $("body").css("overflow", "hidden");
         $("#nyap-read-page").show();
         startView($(this).data("page-link"));
     });
     $("#nyap-read-page-hide").click(function () {
+        keyboardJS.setContext("index");
         $("body").css("overflow", "");
         $("#nyap-read-page").hide();
         endScroll();
@@ -156,17 +161,44 @@
     $("#nyap-read-page-scroll").click(function () {
         if (scrolling) {
             endScroll();
-            $("#nyap-read-page-scroll").text("滚动");
         } else {
             let ms = parseInt($("#nyap-read-page-scroll-speed").val());
             if(!ms) {
                 return;
             }
             startScroll(ms);
-            $("#nyap-read-page-scroll").text("结束");
         }
     });
     $("#nyap-read-page-scroll-speed").on("input", function () {
         GM_setValue("scrollSpeed", $(this).val());
     });
+    keyboardJS.withContext("index", function () {
+        keyboardJS.bind("left", function (e) {
+            let url = new URL(location.href);
+            let page = Math.max(parseInt(url.searchParams.get("page")), 1) || 1;
+            if(page == 1) {
+                return;
+            }
+            page--;
+            url.searchParams.set("page", page);
+            location.href = url.href;
+        });
+        keyboardJS.bind("right", function (e) {
+            let url = new URL(location.href);
+            let page = Math.max(parseInt(url.searchParams.get("page")), 1) || 1;
+            page++;
+            url.searchParams.set("page", page);
+            location.href = url.href;
+        });
+    });
+    keyboardJS.withContext("view", function () {
+        keyboardJS.bind("esc", function (e) {
+            if(scrolling) {
+                endScroll();
+                return;
+            }
+            $("#nyap-read-page-hide").click();
+        });
+    });
+    keyboardJS.setContext("index");
 })();
