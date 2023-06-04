@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         喵绅士(nyahentai)
 // @namespace    https://github.com/dffxd-suntra/nyahentai-plus
-// @version      2.1
+// @version      2.2
 // @description  正式可用,让新版喵绅士有长条预览功能
 // @homepageURL  https://github.com/dffxd-suntra/nyahentai-plus
 // @supportURL   https://github.com/dffxd-suntra/nyahentai-plus
 // @match        *://nyahentai.red/*
 // @match        *://nhentai.xxx/*
+// @match        *://nhentai.net/*
 // @icon         https://nyahentai.red/front/favicon.ico
 // @require      https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js
 // @require      https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js
@@ -44,7 +45,7 @@
         for (let i = 1; i <= pages; i++) {
             $("#nyap-read-page-img").append(
                 $("<span>")
-                    .text(`${i}/${pages}page`)
+                    .text(`${i}/${pages} page`)
                     .css({
                         "color": "gray",
                         "position": "absolute",
