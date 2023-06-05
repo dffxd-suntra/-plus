@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         喵绅士(nyahentai)
 // @namespace    https://github.com/dffxd-suntra/nyahentai-plus
-// @version      2.2
+// @version      2.5
 // @description  正式可用,让新版喵绅士有长条预览功能
 // @homepageURL  https://github.com/dffxd-suntra/nyahentai-plus
 // @supportURL   https://github.com/dffxd-suntra/nyahentai-plus
@@ -37,10 +37,14 @@
     }
     async function startView(url) {
         $("#nyap-read-page-img").html("");
+        if(!url.endsWith("/")) {
+            url += "/";
+        }
         let detailDocument = await loadHtml(url);
         let pages = parseInt($("#tags", detailDocument).children(":contains('Pages')").find(".tag").text());
         let tempUrl = $("#cover > a > img", detailDocument).attr("src").split("/").slice(0, -1).join("/") + "/";
-        console.log(`pages: ${pages}\ntempUrl: ${tempUrl}`);
+        let picSuffix = $("#cover > a > img", detailDocument).attr("src").split(".").pop();
+        console.log(`pages: ${pages}\ntempUrl: ${tempUrl}\npicSuffix: ${picSuffix}`);
 
         for (let i = 1; i <= pages; i++) {
             $("#nyap-read-page-img").append(
@@ -53,7 +57,7 @@
                     }),
                 $("<img>")
                     .attr("src", loadingImg)
-                    .attr("data-src", `${tempUrl + i}.jpg`)
+                    .attr("data-src", `${tempUrl + i}.${picSuffix}`)
                     .addClass("lazyload")
                     .css({
                         "width": "100%",
@@ -63,7 +67,6 @@
                     .on("error", async function (event) {
                         $(this).attr("src", loadingImg);
                         $(this).attr("src", await getPicByPage(`${url}${i}/`));
-                        return false;
                     }),
                 $("<br>")
             );
