@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         喵绅士(nyahentai)
 // @namespace    https://github.com/dffxd-suntra/nyahentai-plus
-// @version      2.5
+// @version      2.6
 // @description  正式可用,让新版喵绅士有长条预览功能
 // @homepageURL  https://github.com/dffxd-suntra/nyahentai-plus
 // @supportURL   https://github.com/dffxd-suntra/nyahentai-plus
@@ -11,7 +11,6 @@
 // @icon         https://nyahentai.red/front/favicon.ico
 // @require      https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js
 // @require      https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js
-// @require      https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js
 // @require      https://cdn.jsdelivr.net/npm/keyboardjs@2.7.0/dist/keyboard.min.js
 // @author       Suntra
 // @grant        GM_getValue
@@ -24,12 +23,8 @@
     let imgWidth = GM_getValue("imgWidth", 60);
     let scrolling = false;
     async function loadHtml(url) {
-        const response = await axios(url);
-        if (response.data == "" || response.status != 200) {
-            console.error(response);
-            throw new Error("网页获取错误");
-        }
-        return new window.DOMParser().parseFromString(response.data, "text/html");
+        const data = await fetch(url).then(res => res.text());
+        return new DOMParser().parseFromString(data, "text/html");
     }
     async function getPicByPage(url) {
         let detailDocument = await loadHtml(url);
@@ -37,7 +32,7 @@
     }
     async function startView(url) {
         $("#nyap-read-page-img").html("");
-        if(!url.endsWith("/")) {
+        if (!url.endsWith("/")) {
             url += "/";
         }
         let detailDocument = await loadHtml(url);
@@ -51,24 +46,24 @@
                 $("<span>")
                     .text(`${i}/${pages} page`)
                     .css({
-                        "color": "gray",
-                        "position": "absolute",
-                        "left": 0
+                        color: "gray",
+                        position: "absolute",
+                        left: 0
                     }),
                 $("<img>")
                     .attr("src", loadingImg)
                     .attr("data-src", `${tempUrl + i}.${picSuffix}`)
                     .addClass("lazyload")
                     .css({
-                        "width": "100%",
-                        "padding": 0,
-                        "margin": 0
+                        width: "100%",
+                        padding: 0,
+                        margin: 0,
+                        display: "block"
                     })
                     .on("error", async function (event) {
                         $(this).attr("src", loadingImg);
                         $(this).attr("src", await getPicByPage(`${url}${i}/`));
-                    }),
-                $("<br>")
+                    })
             );
         }
     }
@@ -128,7 +123,7 @@
         </center>
     </div>
     `);
-    if(/^\/g\/.+\/?$/.test(location.pathname)) {
+    if (/^\/g\/.+\/?$/.test(location.pathname)) {
         $("#info > div").prepend($(`<button class="btn btn-primary" id="nyap-read-page-show">垂直阅读</button>`).data("page-link", location.href));
     }
     $(".gallery > .cover").each(function (index, node) {
@@ -167,7 +162,7 @@
             endScroll();
         } else {
             let ms = parseInt($("#nyap-read-page-scroll-speed").val());
-            if(!ms) {
+            if (!ms) {
                 return;
             }
             startScroll(ms);
@@ -180,7 +175,7 @@
         keyboardJS.bind("left", function (e) {
             let url = new URL(location.href);
             let page = Math.max(parseInt(url.searchParams.get("page")), 1) || 1;
-            if(page == 1) {
+            if (page == 1) {
                 return;
             }
             page--;
@@ -197,7 +192,7 @@
     });
     keyboardJS.withContext("view", function () {
         keyboardJS.bind("esc", function (e) {
-            if(scrolling) {
+            if (scrolling) {
                 endScroll();
                 return;
             }
