@@ -1,4 +1,4 @@
-// need moment.js jquery
+// need moment.js jquery axios
 
 let getPageDocument = async function (url) {
     // 不带错误处理，懒得搞了，外头直接catch就行
